@@ -50,8 +50,6 @@ public class MaskUtility : MonoBehaviour
     public void GenerateMaskedTexture()
     {
         Camera.main.GetComponent<ReadPixels>().grab = true;
-
-        // StartCoroutine("SetNewTexture");
     }
 
     IEnumerator SetNewTexture()

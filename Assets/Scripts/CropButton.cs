@@ -19,16 +19,31 @@ public class CropButton : MonoBehaviour
     public bool isMoving;
 
     RectTransform rect;
-    RectTransform frame;
+    RectTransform MoveCropButton;
 
     RectTransform[] opposites;
+
+    RectTransform Corner0;
+    RectTransform Corner1;
+    RectTransform maskRect;
+
+    Vector2 Extents;
+
     // Start is called before the first frame update
     void Start()
     {
         rect = GetComponent<RectTransform>();
         opposites = new RectTransform[2];
 
-        frame = GameObject.Find("CropButton").GetComponent<RectTransform>();
+        MoveCropButton = GameObject.Find("CropButton").GetComponent<RectTransform>();
+
+        Corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
+        Corner1 = GameObject.Find("BR").GetComponent<RectTransform>();
+        maskRect = GameObject.Find("Mask").GetComponent<RectTransform>();
+
+        StartCoroutine(initPosition());
+
+
     }
 
     // Update is called once per frame
@@ -36,11 +51,50 @@ public class CropButton : MonoBehaviour
     {
         if (isMoving)
         {
-            var pos = Input.mousePosition;
-            transform.position = new Vector2(pos.x, pos.y);
+            var imageRect = GameObject.Find("CameraImage").GetComponent<RectTransform>();
+            var parent = imageRect.parent.GetComponent<RectTransform>();
+
+            var pos = new Vector2(0, 0);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(imageRect, Input.mousePosition, null, out pos);
+
+            print(pos.x);
+
+
+            switch (m_Corner)
+            {
+                case Corner.TOP_LEFT:
+                    pos = new Vector3(Mathf.Max(pos.x, imageRect.offsetMin.x + parent.anchoredPosition.x),
+                    Mathf.Min(pos.y, imageRect.offsetMax.y + parent.anchoredPosition.y),
+                    0);
+                    break;
+                case Corner.TOP_RIGHT:
+                    pos = new Vector3(Mathf.Min(pos.x, imageRect.offsetMax.x + parent.anchoredPosition.x),
+                      Mathf.Min(pos.y, imageRect.offsetMax.y + parent.anchoredPosition.y),
+                      0);
+                    break;
+                case Corner.BOT_LEFT:
+                pos = new Vector3(Mathf.Max(pos.x, imageRect.offsetMin.x + parent.anchoredPosition.x),
+                      Mathf.Max(pos.y, imageRect.offsetMin.y + parent.anchoredPosition.y),
+                      0);
+                    break;
+                case Corner.BOT_RIGHT:
+                  pos = new Vector3(Mathf.Min(pos.x, imageRect.offsetMax.x + parent.anchoredPosition.x),
+                      Mathf.Max(pos.y, imageRect.offsetMin.y + parent.anchoredPosition.y),
+                      0);
+                    break;
+                default:
+                    break;
+            }
+
+
+            rect.anchoredPosition = new Vector2(pos.x, pos.y);
 
             opposites[0].anchoredPosition = new Vector2(opposites[0].anchoredPosition.x, rect.anchoredPosition.y);
             opposites[1].anchoredPosition = new Vector2(rect.anchoredPosition.x, opposites[1].anchoredPosition.y);
+
+            Utilities.BindToCorners(MoveCropButton, Corner0, Corner1);
+            Utilities.BindToCorners(maskRect, Corner0, Corner1);
+
         }
     }
 
@@ -74,5 +128,34 @@ public class CropButton : MonoBehaviour
     public void onButtonReleased()
     {
         isMoving = false;
+        Utilities.BindToCorners(maskRect, Corner0, Corner1);
+
+    }
+
+    IEnumerator initPosition()
+    {
+        yield return new WaitForSeconds(1.0f);
+        var ImageToBind = GameObject.Find("CameraImage").GetComponent<RectTransform>();
+        switch (m_Corner)
+        {
+            case Corner.TOP_LEFT:
+                rect.anchoredPosition = new Vector2(ImageToBind.offsetMin.x, ImageToBind.offsetMax.y);
+                break;
+            case Corner.TOP_RIGHT:
+                rect.anchoredPosition = new Vector2(ImageToBind.offsetMax.x, ImageToBind.offsetMax.y);
+
+                break;
+            case Corner.BOT_LEFT:
+                rect.anchoredPosition = new Vector2(ImageToBind.offsetMin.x, ImageToBind.offsetMin.y);
+
+                break;
+            case Corner.BOT_RIGHT:
+                rect.anchoredPosition = new Vector2(ImageToBind.offsetMax.x, ImageToBind.offsetMin.y);
+
+                break;
+            default:
+                break;
+        }
+        yield break;
     }
 }

@@ -9,10 +9,18 @@ public class CropArea : MonoBehaviour
 
     RectTransform rect;
     bool isMoving;
+
+    RectTransform Corner0;
+    RectTransform Corner1;
+    RectTransform maskRect;
     // Start is called before the first frame update
     void Start()
     {
         rect = GetComponent<RectTransform>();
+
+        Corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
+        Corner1 = GameObject.Find("BR").GetComponent<RectTransform>();
+        maskRect = GameObject.Find("Mask").GetComponent<RectTransform>();
     }
 
     void Update()
@@ -21,18 +29,27 @@ public class CropArea : MonoBehaviour
 
         if (isMoving)
         {
-            GetComponent<BindToCorners>().enabled = false;
             transform.position = new Vector2(pos.x, pos.y);
 
-            GameObject.Find("TL").GetComponent<RectTransform>().anchoredPosition = new Vector2(rect.offsetMin.x, rect.offsetMax.y);
-            GameObject.Find("TR").GetComponent<RectTransform>().anchoredPosition = new Vector2(rect.offsetMax.x, rect.offsetMax.y);
-            GameObject.Find("BL").GetComponent<RectTransform>().anchoredPosition = new Vector2(rect.offsetMin.x, rect.offsetMin.y);
-            GameObject.Find("BR").GetComponent<RectTransform>().anchoredPosition = new Vector2(rect.offsetMax.x, rect.offsetMin.y);
+            var parent = imageRect.parent.GetComponent<RectTransform>();
 
-        }
-        else
-        {
-            GetComponent<BindToCorners>().enabled = true;
+            var tlExtents = new Vector2(Mathf.Max(rect.offsetMin.x, imageRect.offsetMin.x + parent.anchoredPosition.x),
+              Mathf.Min(rect.offsetMax.y, imageRect.offsetMax.y + parent.anchoredPosition.y ));
+            var trExtents = new Vector2(Mathf.Min(rect.offsetMax.x, imageRect.offsetMax.x+ parent.anchoredPosition.x),
+                Mathf.Min(rect.offsetMax.y, imageRect.offsetMax.y+ parent.anchoredPosition.y));
+            var blExtents = new Vector2(Mathf.Max(rect.offsetMin.x, imageRect.offsetMin.x+ parent.anchoredPosition.x),
+                Mathf.Max(rect.offsetMin.y, imageRect.offsetMin.y+ parent.anchoredPosition.y));
+            var brExtents = new Vector2(Mathf.Min(rect.offsetMax.x, imageRect.offsetMax.x+ parent.anchoredPosition.x),
+                Mathf.Max(rect.offsetMin.y, imageRect.offsetMin.y+ parent.anchoredPosition.y));
+
+            GameObject.Find("TL").GetComponent<RectTransform>().anchoredPosition = new Vector2(tlExtents.x, tlExtents.y);
+            GameObject.Find("TR").GetComponent<RectTransform>().anchoredPosition = trExtents;
+            GameObject.Find("BL").GetComponent<RectTransform>().anchoredPosition = blExtents;
+            GameObject.Find("BR").GetComponent<RectTransform>().anchoredPosition = brExtents;
+
+            Utilities.BindToCorners(maskRect, Corner0, Corner1);
+
+
         }
     }
 
@@ -44,6 +61,10 @@ public class CropArea : MonoBehaviour
     public void onButtonReleased()
     {
         isMoving = false;
+
+        Utilities.BindToCorners(rect, Corner0, Corner1);
+        Utilities.BindToCorners(maskRect, Corner0, Corner1);
+
     }
     // Update is called once per frame
     void LateUpdate()

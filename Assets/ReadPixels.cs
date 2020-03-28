@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ReadPixels : MonoBehaviour
 {
@@ -20,12 +21,27 @@ public class ReadPixels : MonoBehaviour
 
     IEnumerator ReadPixelsAtEndOfFrame()
     {
-        var tPos = GameObject.Find("BL").transform.position;
+        var gos = GameObject.FindGameObjectsWithTag("CropButton");
+        GameObject BL = null;
+        GameObject BR = null;
+        GameObject TL = null;
+
+        for (int i = 0; i < gos.Length; i++)
+        {
+            if (gos[i].name == "BL")
+                BL = gos[i];
+            if (gos[i].name == "BR")
+                BR = gos[i];
+            if (gos[i].name == "TL")
+                TL = gos[i];
+        }
+
+        var tPos = BL.transform.position;
 
         var rect_x = tPos.x;
         var rect_y = tPos.y;
-        var rect_width = GameObject.Find("BR").transform.position.x - GameObject.Find("BL").transform.position.x;
-        var rect_height = GameObject.Find("TL").transform.position.y - GameObject.Find("BL").transform.position.y;
+        var rect_width = BR.transform.position.x - BL.transform.position.x;
+        var rect_height = TL.transform.position.y - BL.transform.position.y;
 
         yield return new WaitForEndOfFrame();
         texture = new Texture2D(Mathf.FloorToInt(rect_width), Mathf.FloorToInt(rect_height),
@@ -45,9 +61,14 @@ public class ReadPixels : MonoBehaviour
         System.IO.File.WriteAllBytes(Application.persistentDataPath + "/image.png", _bytes);
 #endif
         NativeGallery.SaveImageToGallery(_bytes, "Scans", "Image.png", null);
-
-
+        
         grab = false;
+
+         for (int i = 0; i < gos.Length; i++)
+        {
+            gos[i].GetComponent<Image>().enabled = true;
+        }
+
         yield break;
     }
 }
