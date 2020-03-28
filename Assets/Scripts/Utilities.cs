@@ -7,7 +7,10 @@ public static class Utilities
 {
     public static Vector2 SizeToParent(this RawImage image, float padding = 0)
     {
-        var parent = image.transform.parent.parent.GetComponentInParent<RectTransform>();
+        var parent = image.transform.parent.GetComponentInParent<RectTransform>();
+        if (image.transform.name == "CameraImage")
+            parent = image.transform.parent.parent.GetComponentInParent<RectTransform>();
+
         var imageTransform = image.GetComponent<RectTransform>();
         if (!parent) { return imageTransform.sizeDelta; } //if we don't have a parent, just return our current width;
         padding = 1 - padding;
@@ -59,9 +62,10 @@ public static class Utilities
         return output;
     }
 
-    public static void BindToCorners(RectTransform rect, RectTransform Corner1, RectTransform Corner2){
-         var offset = new Vector2(0, 0);
-        
+    public static void BindToCorners(RectTransform rect, RectTransform Corner1, RectTransform Corner2)
+    {
+        var offset = new Vector2(0, 0);
+
         rect.offsetMin = new Vector2(Corner1.anchoredPosition.x + offset.x, Corner2.anchoredPosition.y + offset.y);
         rect.offsetMax = new Vector2(Corner2.anchoredPosition.x + offset.x, Corner1.anchoredPosition.y + offset.y);
     }
