@@ -24,7 +24,7 @@ public class CameraUtility : MonoBehaviour
         GetComponent<RawImage>().texture = renderTexture;
         GameObject.Find("BackGroundCamera").GetComponent<RawImage>().texture = renderTexture;
 
-        startPos = new Vector3(Mathf.FloorToInt(rect.position.x), Mathf.FloorToInt(rect.position.y), 0);
+        // startPos = new Vector3(Mathf.FloorToInt(rect.position.x), Mathf.FloorToInt(rect.position.y), 0);
     }
 
     // Update is called once per frame
@@ -44,11 +44,7 @@ public class CameraUtility : MonoBehaviour
     }
     private void LateUpdate()
     {
-        rect.position = startPos;
-
-        var ri = rect.GetComponent<RawImage>();
-        if (ri.texture != null)
-            Utilities.SizeToParent(rect.GetComponent<RawImage>());
+        rect.position = transform.parent.parent.position;
     }
 
     public void OnPhotoButtonPressed()

@@ -33,14 +33,17 @@ public class CropArea : MonoBehaviour
 
             var parent = imageRect.parent.GetComponent<RectTransform>();
 
-            var tlExtents = new Vector2(Mathf.Max(rect.offsetMin.x, imageRect.offsetMin.x + parent.anchoredPosition.x),
-              Mathf.Min(rect.offsetMax.y, imageRect.offsetMax.y + parent.anchoredPosition.y ));
-            var trExtents = new Vector2(Mathf.Min(rect.offsetMax.x, imageRect.offsetMax.x+ parent.anchoredPosition.x),
-                Mathf.Min(rect.offsetMax.y, imageRect.offsetMax.y+ parent.anchoredPosition.y));
-            var blExtents = new Vector2(Mathf.Max(rect.offsetMin.x, imageRect.offsetMin.x+ parent.anchoredPosition.x),
-                Mathf.Max(rect.offsetMin.y, imageRect.offsetMin.y+ parent.anchoredPosition.y));
-            var brExtents = new Vector2(Mathf.Min(rect.offsetMax.x, imageRect.offsetMax.x+ parent.anchoredPosition.x),
-                Mathf.Max(rect.offsetMin.y, imageRect.offsetMin.y+ parent.anchoredPosition.y));
+            var tlExtents = new Vector2(Mathf.Max(-rect.sizeDelta.x / 2 + rect.anchoredPosition.x, -imageRect.sizeDelta.x / 2),
+                Mathf.Min(rect.sizeDelta.y / 2 + rect.anchoredPosition.y, imageRect.sizeDelta.y / 2));
+
+            var trExtents = new Vector2(Mathf.Min(rect.sizeDelta.x / 2 + rect.anchoredPosition.x, imageRect.sizeDelta.x / 2),
+                Mathf.Min(rect.sizeDelta.y / 2 + rect.anchoredPosition.y, imageRect.sizeDelta.y / 2));
+
+            var blExtents = new Vector2(Mathf.Max(-rect.sizeDelta.x / 2 + rect.anchoredPosition.x, -imageRect.sizeDelta.x / 2),
+                Mathf.Max(-rect.sizeDelta.y / 2 + rect.anchoredPosition.y, -imageRect.sizeDelta.y / 2));
+
+            var brExtents = new Vector2(Mathf.Min(rect.offsetMax.x, imageRect.offsetMax.x + parent.anchoredPosition.x),
+                Mathf.Max(rect.offsetMin.y, imageRect.offsetMin.y + parent.anchoredPosition.y));
 
             GameObject.Find("TL").GetComponent<RectTransform>().anchoredPosition = new Vector2(tlExtents.x, tlExtents.y);
             GameObject.Find("TR").GetComponent<RectTransform>().anchoredPosition = trExtents;
