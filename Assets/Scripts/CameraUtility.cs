@@ -45,19 +45,10 @@ public class CameraUtility : MonoBehaviour
     private void LateUpdate()
     {
         rect.position = startPos;
-        Utilities.SizeToParent(GetComponent<RawImage>());
-        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().position = startPos;
-        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().offsetMin = rect.offsetMin
-            + rect.parent.GetComponent<RectTransform>().anchoredPosition;
-        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().offsetMax = rect.offsetMax
-            + rect.parent.GetComponent<RectTransform>().anchoredPosition;
 
-        GameObject.Find("GreyOverlay").GetComponent<RectTransform>().offsetMin = rect.offsetMin
-     + rect.parent.GetComponent<RectTransform>().anchoredPosition;
-        GameObject.Find("GreyOverlay").GetComponent<RectTransform>().offsetMax = rect.offsetMax
-            + rect.parent.GetComponent<RectTransform>().anchoredPosition;
-
-
+        var ri = rect.GetComponent<RawImage>();
+        if (ri.texture != null)
+            Utilities.SizeToParent(rect.GetComponent<RawImage>());
     }
 
     public void OnPhotoButtonPressed()
@@ -68,10 +59,14 @@ public class CameraUtility : MonoBehaviour
     IEnumerator CaptureImage()
     {
         var gos = GameObject.FindGameObjectsWithTag("CropButton");
+
+        //disable the buttons before capturing the image
         for (int i = 0; i < gos.Length; i++)
         {
             gos[i].GetComponent<Image>().enabled = false;
         }
+
+        //Get the mask component
         var mask = GameObject.Find("Mask").GetComponent<Image>();
         mask.GetComponent<MaskUtility>().GenerateMaskedTexture();
         yield break;

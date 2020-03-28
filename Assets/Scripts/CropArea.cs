@@ -48,8 +48,6 @@ public class CropArea : MonoBehaviour
             GameObject.Find("BR").GetComponent<RectTransform>().anchoredPosition = brExtents;
 
             Utilities.BindToCorners(maskRect, Corner0, Corner1);
-
-
         }
     }
 

@@ -40,10 +40,6 @@ public class CropButton : MonoBehaviour
         Corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
         Corner1 = GameObject.Find("BR").GetComponent<RectTransform>();
         maskRect = GameObject.Find("Mask").GetComponent<RectTransform>();
-
-        StartCoroutine(initPosition());
-
-
     }
 
     // Update is called once per frame
@@ -70,19 +66,18 @@ public class CropButton : MonoBehaviour
                       0);
                     break;
                 case Corner.BOT_LEFT:
-                pos = new Vector3(Mathf.Max(pos.x, imageRect.offsetMin.x + parent.anchoredPosition.x),
-                      Mathf.Max(pos.y, imageRect.offsetMin.y + parent.anchoredPosition.y),
-                      0);
+                    pos = new Vector3(Mathf.Max(pos.x, imageRect.offsetMin.x + parent.anchoredPosition.x),
+                          Mathf.Max(pos.y, imageRect.offsetMin.y + parent.anchoredPosition.y),
+                          0);
                     break;
                 case Corner.BOT_RIGHT:
-                  pos = new Vector3(Mathf.Min(pos.x, imageRect.offsetMax.x + parent.anchoredPosition.x),
-                      Mathf.Max(pos.y, imageRect.offsetMin.y + parent.anchoredPosition.y),
-                      0);
+                    pos = new Vector3(Mathf.Min(pos.x, imageRect.offsetMax.x + parent.anchoredPosition.x),
+                        Mathf.Max(pos.y, imageRect.offsetMin.y + parent.anchoredPosition.y),
+                        0);
                     break;
                 default:
                     break;
             }
-
 
             rect.anchoredPosition = new Vector2(pos.x, pos.y);
 
@@ -91,7 +86,6 @@ public class CropButton : MonoBehaviour
 
             Utilities.BindToCorners(MoveCropButton, Corner0, Corner1);
             Utilities.BindToCorners(maskRect, Corner0, Corner1);
-
         }
     }
 
@@ -126,35 +120,5 @@ public class CropButton : MonoBehaviour
     {
         isMoving = false;
         Utilities.BindToCorners(maskRect, Corner0, Corner1);
-    }
-
-    IEnumerator initPosition()
-    {
-        yield return new WaitForSeconds(0.1f);
-        var ImageToBind = GameObject.Find("CameraImage").GetComponent<RectTransform>();
-        switch (m_Corner)
-        {
-            case Corner.TOP_LEFT:
-                rect.anchoredPosition = new Vector2(ImageToBind.offsetMin.x, ImageToBind.offsetMax.y);
-                break;
-            case Corner.TOP_RIGHT:
-                rect.anchoredPosition = new Vector2(ImageToBind.offsetMax.x, ImageToBind.offsetMax.y);
-
-                break;
-            case Corner.BOT_LEFT:
-                rect.anchoredPosition = new Vector2(ImageToBind.offsetMin.x, ImageToBind.offsetMin.y);
-
-                break;
-            case Corner.BOT_RIGHT:
-                rect.anchoredPosition = new Vector2(ImageToBind.offsetMax.x, ImageToBind.offsetMin.y);
-
-                break;
-            default:
-                break;
-        }
-
-        Utilities.BindToCorners(GameObject.Find("Mask").GetComponent<RectTransform>(), GameObject.Find("TL").GetComponent<RectTransform>()
-        ,GameObject.Find("BR").GetComponent<RectTransform>());
-        yield break;
     }
 }
