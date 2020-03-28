@@ -130,7 +130,7 @@ public class CropButton : MonoBehaviour
 
     IEnumerator initPosition()
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.1f);
         var ImageToBind = GameObject.Find("CameraImage").GetComponent<RectTransform>();
         switch (m_Corner)
         {
@@ -152,6 +152,9 @@ public class CropButton : MonoBehaviour
             default:
                 break;
         }
+
+        Utilities.BindToCorners(GameObject.Find("Mask").GetComponent<RectTransform>(), GameObject.Find("TL").GetComponent<RectTransform>()
+        ,GameObject.Find("BR").GetComponent<RectTransform>());
         yield break;
     }
 }

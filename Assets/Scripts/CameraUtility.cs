@@ -52,6 +52,11 @@ public class CameraUtility : MonoBehaviour
         GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().offsetMax = rect.offsetMax
             + rect.parent.GetComponent<RectTransform>().anchoredPosition;
 
+        GameObject.Find("GreyOverlay").GetComponent<RectTransform>().offsetMin = rect.offsetMin
+     + rect.parent.GetComponent<RectTransform>().anchoredPosition;
+        GameObject.Find("GreyOverlay").GetComponent<RectTransform>().offsetMax = rect.offsetMax
+            + rect.parent.GetComponent<RectTransform>().anchoredPosition;
+
 
     }
 
