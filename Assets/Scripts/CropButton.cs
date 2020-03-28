@@ -57,9 +57,6 @@ public class CropButton : MonoBehaviour
             var pos = new Vector2(0, 0);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(imageRect, Input.mousePosition, null, out pos);
 
-            print(pos.x);
-
-
             switch (m_Corner)
             {
                 case Corner.TOP_LEFT:
