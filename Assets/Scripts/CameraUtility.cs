@@ -20,7 +20,9 @@ public class CameraUtility : MonoBehaviour
         rect = GetComponent<RectTransform>();
         m_ARCameraBackground = GameObject.Find("AR Camera").GetComponent<ARCameraBackground>();
         renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+
         GetComponent<RawImage>().texture = renderTexture;
+        GameObject.Find("BackGroundCamera").GetComponent<RawImage>().texture = renderTexture;
 
         startPos = new Vector3(Mathf.FloorToInt(rect.position.x), Mathf.FloorToInt(rect.position.y), 0);
     }
@@ -28,7 +30,6 @@ public class CameraUtility : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         // Copy the camera background to a RenderTexture
         Graphics.Blit(null, renderTexture, m_ARCameraBackground.material);
 
@@ -45,6 +46,13 @@ public class CameraUtility : MonoBehaviour
     {
         rect.position = startPos;
         Utilities.SizeToParent(GetComponent<RawImage>());
+        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().position = startPos;
+        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().offsetMin = rect.offsetMin
+            + rect.parent.GetComponent<RectTransform>().anchoredPosition;
+        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().offsetMax = rect.offsetMax
+            + rect.parent.GetComponent<RectTransform>().anchoredPosition;
+
+
     }
 
     public void OnPhotoButtonPressed()
@@ -57,7 +65,7 @@ public class CameraUtility : MonoBehaviour
         var gos = GameObject.FindGameObjectsWithTag("CropButton");
         for (int i = 0; i < gos.Length; i++)
         {
-                gos[i].GetComponent<Image>().enabled = false;
+            gos[i].GetComponent<Image>().enabled = false;
         }
         var mask = GameObject.Find("Mask").GetComponent<Image>();
         mask.GetComponent<MaskUtility>().GenerateMaskedTexture();

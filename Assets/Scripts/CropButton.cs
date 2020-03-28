@@ -129,7 +129,6 @@ public class CropButton : MonoBehaviour
     {
         isMoving = false;
         Utilities.BindToCorners(maskRect, Corner0, Corner1);
-
     }
 
     IEnumerator initPosition()

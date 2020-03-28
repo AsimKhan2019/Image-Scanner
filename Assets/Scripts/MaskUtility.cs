@@ -25,7 +25,6 @@ public class MaskUtility : MonoBehaviour
         var fillColorArray = newTexture.GetPixels();
         var length = newTexture.GetPixels().Length;
 
-
         int k = 0;
         for (int i = 0; i < newTexture.width; i++)
         {
@@ -34,8 +33,6 @@ public class MaskUtility : MonoBehaviour
                 fillColorArray[k] = fillColor;
                 k++;
             }
-
-
         }
 
         newTexture.SetPixels(fillColorArray);
