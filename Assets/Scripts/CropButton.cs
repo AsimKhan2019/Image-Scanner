@@ -56,23 +56,23 @@ public class CropButton : MonoBehaviour
             switch (m_Corner)
             {
                 case Corner.TOP_LEFT:
-                    pos = new Vector3(Mathf.Max(pos.x, -imageRect.sizeDelta.x/2 + parent.anchoredPosition.x),
-                    Mathf.Min(pos.y, imageRect.sizeDelta.y/2 + parent.anchoredPosition.y),
+                    pos = new Vector3(Mathf.Max(pos.x, -imageRect.sizeDelta.x/2),
+                    Mathf.Min(pos.y, imageRect.sizeDelta.y/2 ),
                     0);
                     break;
                 case Corner.TOP_RIGHT:
-                    pos = new Vector3(Mathf.Min(pos.x, imageRect.sizeDelta.x/2 + parent.anchoredPosition.x),
-                      Mathf.Min(pos.y, imageRect.sizeDelta.y/2 + parent.anchoredPosition.y),
+                    pos = new Vector3(Mathf.Min(pos.x, imageRect.sizeDelta.x/2),
+                      Mathf.Min(pos.y, imageRect.sizeDelta.y/2 ),
                       0);
                     break;
                 case Corner.BOT_LEFT:
-                    pos = new Vector3(Mathf.Max(pos.x, -imageRect.sizeDelta.x/2 + parent.anchoredPosition.x),
-                          Mathf.Max(pos.y, -imageRect.sizeDelta.y/2 + parent.anchoredPosition.y),
+                    pos = new Vector3(Mathf.Max(pos.x, -imageRect.sizeDelta.x/2 ),
+                          Mathf.Max(pos.y, -imageRect.sizeDelta.y/2),
                           0);
                     break;
                 case Corner.BOT_RIGHT:
-                    pos = new Vector3(Mathf.Min(pos.x, imageRect.sizeDelta.x/2 + parent.anchoredPosition.x),
-                        Mathf.Max(pos.y, -imageRect.sizeDelta.y/2 + parent.anchoredPosition.y),
+                    pos = new Vector3(Mathf.Min(pos.x, imageRect.sizeDelta.x/2),
+                        Mathf.Max(pos.y, -imageRect.sizeDelta.y/2),
                         0);
                     break;
                 default:
