@@ -69,7 +69,7 @@ public class CameraUtility : MonoBehaviour
         //disable the buttons before capturing the image
         for (int i = 0; i < gos.Length; i++)
         {
-            gos[i].GetComponent<Image>().enabled = false;
+            gos[i].GetComponentInChildren<Image>().enabled = false;
         }
 
         //Get the mask component

@@ -66,7 +66,7 @@ public class ReadPixels : MonoBehaviour
 
          for (int i = 0; i < gos.Length; i++)
         {
-            gos[i].GetComponent<Image>().enabled = true;
+            gos[i].GetComponentInChildren<Image>().enabled = true;
         }
 
         yield break;
