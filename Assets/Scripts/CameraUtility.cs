@@ -31,7 +31,17 @@ public class CameraUtility : MonoBehaviour
     void Update()
     {
         // Copy the camera background to a RenderTexture
-        Graphics.Blit(null, renderTexture, m_ARCameraBackground.material);
+        try
+        {
+            Graphics.Blit(null, renderTexture, m_ARCameraBackground.material);
+        }
+        catch
+        {
+            print("IN EDITORI");
+            var TestImage = Resources.Load("TestImage") as Material;
+            Graphics.Blit(TestImage.mainTexture, renderTexture);
+
+        }
 
         // Copy the RenderTexture from GPU to CPU
         var activeRenderTexture = RenderTexture.active;

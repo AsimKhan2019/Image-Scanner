@@ -47,7 +47,7 @@ public class CropButton : MonoBehaviour
     {
         if (isMoving)
         {
-            var imageRect = GameObject.Find("ImagePanel").GetComponent<RectTransform>();
+            var imageRect = GameObject.Find("CameraImage").GetComponent<RectTransform>();
             var parent = imageRect.parent.GetComponent<RectTransform>();
 
             var pos = new Vector2(0, 0);

@@ -26,7 +26,7 @@ public class InitializeLayout : MonoBehaviour
         if (bImage.texture != null)
             Utilities.SizeToParent(bImage);
 
-        var ImageToBind = GameObject.Find("ImagePanel").GetComponent<RectTransform>();
+        var ImageToBind = GameObject.Find("CameraImage").GetComponent<RectTransform>();
 
         var corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
         corner0.anchoredPosition = new Vector2(-ImageToBind.sizeDelta.x / 2, ImageToBind.sizeDelta.y / 2);
