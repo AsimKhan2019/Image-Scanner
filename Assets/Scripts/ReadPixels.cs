@@ -21,7 +21,7 @@ public class ReadPixels : MonoBehaviour
 
     IEnumerator ReadPixelsAtEndOfFrame()
     {
-        var gos = GameObject.FindGameObjectsWithTag("CropButton");
+        var gos = GameObject.FindGameObjectsWithTag("HideOnScreenCapture");
         GameObject BL = null;
         GameObject BR = null;
         GameObject TL = null;

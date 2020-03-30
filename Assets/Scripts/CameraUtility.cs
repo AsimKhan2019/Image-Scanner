@@ -9,9 +9,23 @@ using OpenCVForUnity.UnityUtils;
 using System.Runtime.InteropServices;
 using System;
 
+using OpenCVForUnity.ImgprocModule;
 
 public class CameraUtility : MonoBehaviour
 {
+    [SerializeField]
+    FloatReference contrastAlpha;
+    [SerializeField]
+    FloatReference contrastBeta;
+    [SerializeField]
+    FloatReference cannyLow;
+    [SerializeField]
+    FloatReference cannyHi;
+    [SerializeField]
+    BoolReference contrastFilter;
+    [SerializeField]
+    BoolReference cannyFilter;
+
     ARCameraBackground m_ARCameraBackground;
 
     RenderTexture renderTexture;
@@ -23,13 +37,13 @@ public class CameraUtility : MonoBehaviour
     RectTransform rect;
 
     Mat imgMat;
-    Texture2D temp;
+    Mat cannyMat;
 
+    Texture2D temp;
     Texture2D TargetTexture;
 
     GCHandle arrayHandle;
 
-    bool contrastFilter;
 
 #if (UNITY_IOS || UNITY_WEBGL) && !UNITY_EDITOR
         const string LIBNAME = "__Internal";
@@ -59,6 +73,7 @@ public class CameraUtility : MonoBehaviour
         renderTexture = new RenderTexture(width, height, 0);
         rt = new RenderTexture(width, height, 0);
         imgMat = new Mat(height, width, CvType.CV_8UC4);
+        cannyMat = new Mat(height, width, CvType.CV_8UC4);
 
         //Assign the new render texture to the RawImage
         GetComponent<RawImage>().texture = renderTexture;
@@ -66,8 +81,8 @@ public class CameraUtility : MonoBehaviour
         GameObject.Find("BackGroundCamera").GetComponent<RawImage>().texture = renderTexture;
         //Copy the texture
         TargetTexture = new Texture2D(width, height, TextureFormat.RGBA32, 1, true);
-        //allocate the memory for the texture
-        // arrayHandle = GCHandle.Alloc(m_LastCameraTexture.GetRawTextureData(), GCHandleType.Pinned);
+
+        contrastFilter.Value = true;
     }
 
     // Update is called once per frame
@@ -96,8 +111,8 @@ public class CameraUtility : MonoBehaviour
         //Finally it Blits the texture to the render texture on the canvas
 
         //create a Mat out of the texture2D - stored at address (currenlty m_LastCameraTexture)
-        // OpenCVForUnity_ByteArrayToMatData(arrayHandle.AddrOfPinnedObject(), imgMat.nativeObj); //Stored in this memory addr is the original m_LastCameraTexture
 
+        //read raw texture from byte[] and convert it in memory to a mat
         unsafe
         {
             byte[] buffer = m_LastCameraTexture.GetRawTextureData();
@@ -108,11 +123,27 @@ public class CameraUtility : MonoBehaviour
                 OpenCVForUnity_ByteArrayToMatData(ptr, imgMat.nativeObj); //Stored in this memory addr is the original m_LastCameraTexture
             }
         }
-        if (contrastFilter)
-            imgMat.convertTo(imgMat, -1, 1.5f, 0); //adjust the contrast of the mat
 
-        Utils.matToTexture2D(imgMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+        //apply the contrast filter
+        if (contrastFilter.Value)
+            imgMat.convertTo(imgMat, -1, contrastAlpha.Value, contrastBeta.Value); //adjust the contrast of the mat
 
+        //apply the canny filter
+        OpenCVForUnity.ImgprocModule.Imgproc.Canny(imgMat, cannyMat, cannyLow, cannyHi, 3, true);
+        //invert black to white
+        OpenCVForUnity.CoreModule.Core.bitwise_not(cannyMat, cannyMat);
+
+        //return canny or unfiltered mat depending on setting
+        if (cannyFilter.Value)
+        {
+            print("Canny on");
+            Utils.matToTexture2D(cannyMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+        }
+        else
+        {
+            print("Canny off");
+            Utils.matToTexture2D(imgMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+        }
         Graphics.Blit(TargetTexture, renderTexture);
     }
 
@@ -128,7 +159,7 @@ public class CameraUtility : MonoBehaviour
 
     IEnumerator CaptureImage()
     {
-        var gos = GameObject.FindGameObjectsWithTag("CropButton");
+        var gos = GameObject.FindGameObjectsWithTag("HideOnScreenCapture");
 
         //disable the buttons before capturing the image
         for (int i = 0; i < gos.Length; i++)
@@ -144,17 +175,5 @@ public class CameraUtility : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        //  arrayHandle.Free();
     }
-
-    public void ToggleFilter()
-    {
-        if (contrastFilter)
-            contrastFilter = false;
-        else
-            contrastFilter = true;
-
-
-    }
-
 }
