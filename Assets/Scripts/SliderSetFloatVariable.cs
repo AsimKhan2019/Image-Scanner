@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 public class SliderSetFloatVariable : MonoBehaviour
 {
+
+    [SerializeField]
+    BoolReference FilterActive;
+
+    [SerializeField]
+
     private void Start()
     {
         contrastBeta.SetValue(0);
@@ -19,14 +25,28 @@ public class SliderSetFloatVariable : MonoBehaviour
         contrastBeta.SetValue(Mathf.Lerp(-50, 50, GetComponent<Slider>().value));
     }
 
-    public void HideSlider()
+    private void Update()
     {
-        foreach (Image i in transform.GetComponentsInChildren<Image>())
+        if (!FilterActive.Value)
         {
-            if (i.enabled)
-                i.enabled = false;
-            else
-                i.enabled = true;
+            HideSlider(true);
+        }
+    }
+
+    public void HideSlider(bool hidden)
+    {
+        foreach (Image i in GetComponentsInChildren<Image>())
+        {
+            i.enabled = !hidden;
+        }
+    }
+
+    public void ToggleSlider()
+    {
+        foreach (Image i in GetComponentsInChildren<Image>())
+        {
+            if (FilterActive.Value)
+                i.enabled = !i.enabled;
         }
     }
 }

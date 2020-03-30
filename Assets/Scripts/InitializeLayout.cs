@@ -35,9 +35,9 @@ public class InitializeLayout : MonoBehaviour
         var corner2 = GameObject.Find("BL").GetComponent<RectTransform>();
         corner2.anchoredPosition = new Vector2(-ImageToBind.sizeDelta.x / 2, -ImageToBind.sizeDelta.y / 2);
         var corner3 = GameObject.Find("BR").GetComponent<RectTransform>();
-        corner3.anchoredPosition = new Vector2(ImageToBind.sizeDelta.x / 2, ImageToBind.sizeDelta.y / 2);
+        corner3.anchoredPosition = new Vector2(ImageToBind.sizeDelta.x / 2, -ImageToBind.sizeDelta.y / 2);
 
-
+        Utilities.BindToCorners( GameObject.Find("Mask").GetComponent<RectTransform>(), corner0, corner3);
         yield break;
 
 

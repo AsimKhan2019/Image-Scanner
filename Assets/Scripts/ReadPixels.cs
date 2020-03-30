@@ -11,6 +11,10 @@ public class ReadPixels : MonoBehaviour
     [SerializeField]
     RectTransform maskRect;
 
+    [SerializeField]
+    BoolReference FilterActive;
+    bool Reactivate;
+
     private void OnPostRender()
     {
         if (grab)
@@ -48,8 +52,6 @@ public class ReadPixels : MonoBehaviour
       TextureFormat.ARGB32, false);
 
         //Read the pixels in the Rect starting at 0,0 and ending at the screen's width and height
-        Debug.Log("rect " + rect_x + ", " + rect_y + ":" + rect_width + ", " + rect_height);
-
         texture.ReadPixels(new Rect(rect_x, rect_y, rect_width, rect_height)
                 , 0, 0, false);
 
@@ -61,14 +63,25 @@ public class ReadPixels : MonoBehaviour
         System.IO.File.WriteAllBytes(Application.persistentDataPath + "/image.png", _bytes);
 #endif
         NativeGallery.SaveImageToGallery(_bytes, "Scans", "Image.png", null);
-        
+
         grab = false;
 
-         for (int i = 0; i < gos.Length; i++)
+        for (int i = 0; i < gos.Length; i++)
         {
-            gos[i].GetComponentInChildren<Image>().enabled = true;
+            gos[i].GetComponent<Image>().enabled = true;
+        }
+
+        if (Reactivate)
+        {
+            FilterActive.Value = true;
+            Reactivate = false;
         }
 
         yield break;
+    }
+
+    void ReactivateFilter()
+    {
+        Reactivate = true;
     }
 }

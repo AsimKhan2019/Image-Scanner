@@ -25,6 +25,8 @@ public class CameraUtility : MonoBehaviour
     BoolReference contrastFilter;
     [SerializeField]
     BoolReference cannyFilter;
+    [SerializeField]
+    BoolReference FilterActive;
 
     ARCameraBackground m_ARCameraBackground;
 
@@ -136,12 +138,10 @@ public class CameraUtility : MonoBehaviour
         //return canny or unfiltered mat depending on setting
         if (cannyFilter.Value)
         {
-            print("Canny on");
             Utils.matToTexture2D(cannyMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
         else
         {
-            print("Canny off");
             Utils.matToTexture2D(imgMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
         Graphics.Blit(TargetTexture, renderTexture);
@@ -150,6 +150,8 @@ public class CameraUtility : MonoBehaviour
     private void LateUpdate()
     {
         rect.position = transform.parent.parent.position;
+        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().position = transform.parent.parent.position;
+
     }
 
     public void OnPhotoButtonPressed()
@@ -164,12 +166,20 @@ public class CameraUtility : MonoBehaviour
         //disable the buttons before capturing the image
         for (int i = 0; i < gos.Length; i++)
         {
-            gos[i].GetComponentInChildren<Image>().enabled = false;
+            gos[i].GetComponent<Image>().enabled = false;
         }
 
-        //Get the mask component
-        var mask = GameObject.Find("Mask").GetComponent<Image>();
-        mask.GetComponent<MaskUtility>().GenerateMaskedTexture();
+        
+        //save the contrast filter state
+        if (FilterActive.Value)
+            Camera.main.SendMessage("ReactivateFilter");
+
+        //Deactivate the filter to remove the slider from the screen.
+        FilterActive.Value = false;
+
+        //grab the camera image
+        Camera.main.GetComponent<ReadPixels>().grab = true;
+
         yield break;
     }
 

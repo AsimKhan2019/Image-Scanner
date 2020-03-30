@@ -21,6 +21,7 @@ public class CropArea : MonoBehaviour
         Corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
         Corner1 = GameObject.Find("BR").GetComponent<RectTransform>();
         maskRect = GameObject.Find("Mask").GetComponent<RectTransform>();
+
     }
 
     void Update()

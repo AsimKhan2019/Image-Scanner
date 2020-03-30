@@ -44,11 +44,6 @@ public class MaskUtility : MonoBehaviour
         GetComponent<Image>().sprite = newMask;
     }
 
-    public void GenerateMaskedTexture()
-    {
-        Camera.main.GetComponent<ReadPixels>().grab = true;
-    }
-
     IEnumerator SetNewTexture()
     {
         var newMask = Sprite.Create(Camera.main.GetComponent<ReadPixels>().texture,
