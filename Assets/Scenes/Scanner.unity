@@ -619,26 +619,14 @@ MonoBehaviour:
     UseConstant: 0
     ConstantValue: 0
     Variable: {fileID: 11400000, guid: 58f2d83d9cf3947cd85db20f9543a872, type: 2}
-  cannyLow:
-    UseConstant: 0
-    ConstantValue: 0
-    Variable: {fileID: 11400000, guid: c43ad93402818407eb0fbb08c4b5eb9a, type: 2}
-  cannyHi:
-    UseConstant: 0
-    ConstantValue: 0
-    Variable: {fileID: 11400000, guid: 23866356985d7453a89a3844155861ed, type: 2}
-  contrastFilter:
+  contrastFilterActive:
     UseConstant: 0
     ConstantValue: 0
     Variable: {fileID: 11400000, guid: 4fe9a3290292e40b2b5d43c38eb351d0, type: 2}
-  cannyFilter:
+  ShouldThreshold:
     UseConstant: 0
     ConstantValue: 0
     Variable: {fileID: 11400000, guid: f5f0d945278fd4d318266ad879b49a51, type: 2}
-  FilterActive:
-    UseConstant: 0
-    ConstantValue: 0
-    Variable: {fileID: 11400000, guid: 4fe9a3290292e40b2b5d43c38eb351d0, type: 2}
 --- !u!1 &373328060
 GameObject:
   m_ObjectHideFlags: 0

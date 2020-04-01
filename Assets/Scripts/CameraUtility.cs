@@ -6,10 +6,11 @@ using UnityEngine.UI;
 using System.IO;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.ImgcodecsModule;
+
 using System.Runtime.InteropServices;
 using System;
-
-using OpenCVForUnity.ImgprocModule;
 
 public class CameraUtility : MonoBehaviour
 {
@@ -18,15 +19,9 @@ public class CameraUtility : MonoBehaviour
     [SerializeField]
     FloatReference contrastBeta;
     [SerializeField]
-    FloatReference cannyLow;
+    BoolReference contrastFilterActive;
     [SerializeField]
-    FloatReference cannyHi;
-    [SerializeField]
-    BoolReference contrastFilter;
-    [SerializeField]
-    BoolReference cannyFilter;
-    [SerializeField]
-    BoolReference FilterActive;
+    BoolReference ShouldThreshold;
 
     ARCameraBackground m_ARCameraBackground;
 
@@ -63,9 +58,21 @@ public class CameraUtility : MonoBehaviour
         temp = Resources.Load("Image") as Texture2D;
 
 #if UNITY_EDITOR
-        m_LastCameraTexture = new Texture2D(temp.width, temp.height, TextureFormat.RGBA32, 1, true);
+        float ratio = temp.width / (float)temp.height;
+        float h = Screen.height;
+        float w = h * ratio;
+
+        if (w > Screen.width)
+        { //If it doesn't fit, fallback to width;
+            w = Screen.width;
+            h = w / ratio;
+        }
+        m_LastCameraTexture = new Texture2D((int)w, (int)h, TextureFormat.RGBA32, 1, true);
+
+        print("image size " + temp.width + ", " + temp.height);
+        print("texture size " + w + ", " + h);
 #else
-        m_LastCameraTexture =  new Texture2D(Screen.width/2,Screen.height/2,TextureFormat.RGBA32,1,true);
+        m_LastCameraTexture =  new Texture2D(Screen.width,Screen.height,TextureFormat.RGBA32,1,true);
 #endif
         var width = m_LastCameraTexture.width;
         var height = m_LastCameraTexture.height;
@@ -84,7 +91,7 @@ public class CameraUtility : MonoBehaviour
         //Copy the texture
         TargetTexture = new Texture2D(width, height, TextureFormat.RGBA32, 1, true);
 
-        contrastFilter.Value = true;
+        contrastFilterActive.Value = true;
     }
 
     // Update is called once per frame
@@ -127,18 +134,46 @@ public class CameraUtility : MonoBehaviour
         }
 
         //apply the contrast filter
-        if (contrastFilter.Value)
+        if (contrastFilterActive.Value)
             imgMat.convertTo(imgMat, -1, contrastAlpha.Value, contrastBeta.Value); //adjust the contrast of the mat
 
-        //apply the canny filter
-        OpenCVForUnity.ImgprocModule.Imgproc.Canny(imgMat, cannyMat, cannyLow, cannyHi, 3, true);
-        //invert black to white
-        OpenCVForUnity.CoreModule.Core.bitwise_not(cannyMat, cannyMat);
+        //Canny causes duplicate edge lines, instead we will use canny to contour and find the corners of the image:
+        /*************** //CANNY EDGE DETECTION
+        // convert the image to grayscale and blur it slightly
+        Mat grey = new Mat();
 
-        //return canny or unfiltered mat depending on setting
-        if (cannyFilter.Value)
+        Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.GaussianBlur(grey, cannyMat, new Size(7, 7), 0);
+
+        int MORPH = 9;
+        // dilate helps to remove potential holes between edge segments
+        var kernal = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(MORPH, MORPH));
+        Imgproc.dilate(cannyMat, cannyMat, kernal);
+
+        //apply the canny filter
+        Imgproc.Canny(imgMat, cannyMat, 0, 84, 3, true);
+
+        var linesMat = new Mat();
+
+        //invert black to white
+        Core.bitwise_not(cannyMat, cannyMat);
+        //END CANNY EDGE DETECTION ************************************/
+
+
+        //Threshold the image if "Detect Edges" is on
+        if (ShouldThreshold.Value)
         {
-            Utils.matToTexture2D(cannyMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+            Mat grey = new Mat();
+            Mat update = new Mat(imgMat.height(), imgMat.width(), CvType.CV_8UC4);
+
+            Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
+
+            print("adaptive threshold");
+            Imgproc.adaptiveThreshold(grey, grey, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 21, 15);
+            Core.copyTo(grey, update, grey);
+
+            Utils.matToTexture2D(update, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+
         }
         else
         {
@@ -151,7 +186,6 @@ public class CameraUtility : MonoBehaviour
     {
         rect.position = transform.parent.parent.position;
         GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().position = transform.parent.parent.position;
-
     }
 
     public void OnPhotoButtonPressed()
@@ -169,13 +203,13 @@ public class CameraUtility : MonoBehaviour
             gos[i].GetComponent<Image>().enabled = false;
         }
 
-        
+
         //save the contrast filter state
-        if (FilterActive.Value)
+        if (contrastFilterActive.Value)
             Camera.main.SendMessage("ReactivateFilter");
 
         //Deactivate the filter to remove the slider from the screen.
-        FilterActive.Value = false;
+        contrastFilterActive.Value = false;
 
         //grab the camera image
         Camera.main.GetComponent<ReadPixels>().grab = true;
