@@ -70,6 +70,6 @@ namespace Keenan_UI
 
             rect.offsetMin = new Vector2(Corner1.anchoredPosition.x + offset.x, Corner2.anchoredPosition.y + offset.y);
             rect.offsetMax = new Vector2(Corner2.anchoredPosition.x + offset.x, Corner1.anchoredPosition.y + offset.y);
-        }
+        }   
     }
 }

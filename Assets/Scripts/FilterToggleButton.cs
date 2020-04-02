@@ -9,32 +9,49 @@ public class FilterToggleButton : MonoBehaviour
     BoolReference FilterReference = null;
 
     Button myButton;
+
+    LookAndFeelObject buttonLook;
+
+    ColorBlock activeColors;
+    ColorBlock offColors;
+
     // Start is called before the first frame update
     void Start()
     {
         myButton = GetComponent<Button>();
         myButton.onClick.AddListener(OnClick);
+
+        buttonLook = GameObject.FindObjectOfType<ControlLookAndFeel>().lookAndFeel;
+        activeColors = GetComponent<Button>().colors;
+        offColors = GetComponent<Button>().colors;
+
+        activeColors.selectedColor = buttonLook.Positive;
+        activeColors.normalColor = buttonLook.Positive;
+        activeColors.pressedColor = buttonLook.Positive;
+        activeColors.highlightedColor = buttonLook.Positive;
+        activeColors.disabledColor = buttonLook.Positive;
+
+        offColors.selectedColor = buttonLook.Negative;
+        offColors.normalColor = buttonLook.Negative;
+        offColors.pressedColor = buttonLook.Negative;
+        offColors.highlightedColor = buttonLook.Negative;
+        offColors.disabledColor = buttonLook.Negative;
     }
 
     private void Update()
     {
-        var activeColors = GetComponent<Button>().colors;
-        var offColors = GetComponent<Button>().colors;
-
-        activeColors.selectedColor = new Color(0, 255, 0, 255);
-        activeColors.normalColor = new Color(0, 255, 0, 255);
-
-        offColors.selectedColor = new Color(255, 0, 0, 255);
-        offColors.normalColor = new Color(255, 0, 0, 255);
 
         if (FilterReference.Value)
         {
+            GetComponent<Image>().color = buttonLook.Positive;
             myButton.colors = activeColors;
         }
         else
         {
+            GetComponent<Image>().color = buttonLook.Negative;
             myButton.colors = offColors;
         }
+
     }
 
     void OnClick()

@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - HideOnScreenCapture
+  - UI_Color0
+  - UI_Color1
+  - UI_Color2
   layers:
   - Default
   - TransparentFX
