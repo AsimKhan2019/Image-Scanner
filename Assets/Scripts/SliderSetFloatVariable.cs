@@ -7,7 +7,7 @@ public class SliderSetFloatVariable : MonoBehaviour
 {
 
     [SerializeField]
-    BoolReference FilterActive;
+    BoolReference FilterActive = null;
 
     [SerializeField]
 
@@ -19,7 +19,7 @@ public class SliderSetFloatVariable : MonoBehaviour
     //  [SerializeField]
     //  FloatReference contrastAlpha;
     [SerializeField]
-    FloatVariable contrastBeta;
+    FloatVariable contrastBeta = null;
     public void OnValueChanged()
     {
         contrastBeta.SetValue(Mathf.Lerp(-150, 150, GetComponent<Slider>().value));

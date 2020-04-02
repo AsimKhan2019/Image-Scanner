@@ -12,7 +12,7 @@ public class ReadPixels : MonoBehaviour
     RectTransform maskRect;
 
     [SerializeField]
-    BoolReference FilterActive;
+    BoolReference FilterActive = null;
     bool Reactivate;
 
     private void OnPostRender()

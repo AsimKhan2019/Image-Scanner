@@ -15,13 +15,13 @@ using System.Linq;
 public class CameraUtility : MonoBehaviour
 {
     [SerializeField]
-    FloatReference contrastAlpha;
+    FloatReference contrastAlpha = null;
     [SerializeField]
-    FloatReference contrastBeta;
+    FloatReference contrastBeta = null;
     [SerializeField]
-    BoolReference contrastFilterActive;
+    BoolReference contrastFilterActive = null;
     [SerializeField]
-    BoolReference ShouldThreshold;
+    BoolReference ShouldThreshold = null;
 
     ARCameraBackground m_ARCameraBackground;
 

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class FilterToggleButton : MonoBehaviour
 {
     [SerializeField]
-    BoolReference FilterReference;
+    BoolReference FilterReference = null;
 
     Button myButton;
     // Start is called before the first frame update

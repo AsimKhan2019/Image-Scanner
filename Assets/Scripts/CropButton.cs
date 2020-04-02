@@ -14,7 +14,7 @@ public class CropButton : MonoBehaviour
     }
 
     [SerializeField]
-    Corner m_Corner;
+    Corner m_Corner = Corner.TOP_LEFT;
 
     public bool isMoving;
 
@@ -84,8 +84,8 @@ public class CropButton : MonoBehaviour
             opposites[0].anchoredPosition = new Vector2(opposites[0].anchoredPosition.x, rect.anchoredPosition.y);
             opposites[1].anchoredPosition = new Vector2(rect.anchoredPosition.x, opposites[1].anchoredPosition.y);
 
-            Utilities.BindToCorners(MoveCropButton, Corner0, Corner1);
-            Utilities.BindToCorners(maskRect, Corner0, Corner1);
+            Keenan_UI.Utilities.BindToCorners(MoveCropButton, Corner0, Corner1);
+            Keenan_UI.Utilities.BindToCorners(maskRect, Corner0, Corner1);
         }
     }
 
@@ -119,6 +119,6 @@ public class CropButton : MonoBehaviour
     public void onButtonReleased()
     {
         isMoving = false;
-        Utilities.BindToCorners(maskRect, Corner0, Corner1);
+        Keenan_UI.Utilities.BindToCorners(maskRect, Corner0, Corner1);
     }
 }

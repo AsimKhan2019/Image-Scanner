@@ -20,17 +20,17 @@ public class InitializeLayout : MonoBehaviour
         var CamImage = GameObject.Find("CameraImage").GetComponent<RawImage>();
 
         if (CamImage.texture != null)
-            Utilities.SizeToParent(CamImage);
+            Keenan_UI.Utilities.SizeToParent(CamImage);
 
         var bImage = GameObject.Find("BackGroundCamera").GetComponent<RawImage>();
         if (bImage.texture != null)
-            Utilities.SizeToParent(bImage);
+            Keenan_UI.Utilities.SizeToParent(bImage);
 
         try
         {
             var dImage = GameObject.Find("DebugTexture").GetComponent<RawImage>();
             if (dImage.texture != null)
-                Utilities.SizeToParent(dImage);
+                Keenan_UI.Utilities.SizeToParent(dImage);
         }
         catch
         {
@@ -50,10 +50,8 @@ public class InitializeLayout : MonoBehaviour
         var corner3 = GameObject.Find("BR").GetComponent<RectTransform>();
         corner3.anchoredPosition = new Vector2(ImageToBind.sizeDelta.x / 2, -ImageToBind.sizeDelta.y / 2);
 
-        Utilities.BindToCorners(GameObject.Find("Mask").GetComponent<RectTransform>(), corner0, corner3);
+        Keenan_UI.Utilities.BindToCorners(GameObject.Find("Mask").GetComponent<RectTransform>(), corner0, corner3);
         yield break;
-
-
     }
 
 

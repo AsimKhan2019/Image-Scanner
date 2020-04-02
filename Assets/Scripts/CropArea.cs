@@ -5,14 +5,14 @@ using UnityEngine;
 public class CropArea : MonoBehaviour
 {
     [SerializeField]
-    RectTransform imageRect;
+    RectTransform imageRect = null;
 
     RectTransform rect;
     bool isMoving;
 
-    RectTransform Corner0;
-    RectTransform Corner1;
-    RectTransform maskRect;
+    RectTransform Corner0 = null;
+    RectTransform Corner1 = null;
+    RectTransform maskRect = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,7 +21,6 @@ public class CropArea : MonoBehaviour
         Corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
         Corner1 = GameObject.Find("BR").GetComponent<RectTransform>();
         maskRect = GameObject.Find("Mask").GetComponent<RectTransform>();
-
     }
 
     void Update()
@@ -51,7 +50,7 @@ public class CropArea : MonoBehaviour
             GameObject.Find("BL").GetComponent<RectTransform>().anchoredPosition = blExtents;
             GameObject.Find("BR").GetComponent<RectTransform>().anchoredPosition = brExtents;
 
-            Utilities.BindToCorners(maskRect, Corner0, Corner1);
+            Keenan_UI.Utilities.BindToCorners(maskRect, Corner0, Corner1);
         }
     }
 
@@ -64,8 +63,8 @@ public class CropArea : MonoBehaviour
     {
         isMoving = false;
 
-        Utilities.BindToCorners(rect, Corner0, Corner1);
-        Utilities.BindToCorners(maskRect, Corner0, Corner1);
+        Keenan_UI.Utilities.BindToCorners(rect, Corner0, Corner1);
+        Keenan_UI.Utilities.BindToCorners(maskRect, Corner0, Corner1);
 
     }
     // Update is called once per frame
