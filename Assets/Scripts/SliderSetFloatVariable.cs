@@ -22,7 +22,7 @@ public class SliderSetFloatVariable : MonoBehaviour
     FloatVariable contrastBeta;
     public void OnValueChanged()
     {
-        contrastBeta.SetValue(Mathf.Lerp(-50, 50, GetComponent<Slider>().value));
+        contrastBeta.SetValue(Mathf.Lerp(-150, 150, GetComponent<Slider>().value));
     }
 
     private void Update()

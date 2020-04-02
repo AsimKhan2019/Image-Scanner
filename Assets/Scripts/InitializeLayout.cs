@@ -26,6 +26,19 @@ public class InitializeLayout : MonoBehaviour
         if (bImage.texture != null)
             Utilities.SizeToParent(bImage);
 
+        try
+        {
+            var dImage = GameObject.Find("DebugTexture").GetComponent<RawImage>();
+            if (dImage.texture != null)
+                Utilities.SizeToParent(dImage);
+        }
+        catch
+        {
+
+        }
+
+
+
         var ImageToBind = GameObject.Find("CameraImage").GetComponent<RectTransform>();
 
         var corner0 = GameObject.Find("TL").GetComponent<RectTransform>();
@@ -37,7 +50,7 @@ public class InitializeLayout : MonoBehaviour
         var corner3 = GameObject.Find("BR").GetComponent<RectTransform>();
         corner3.anchoredPosition = new Vector2(ImageToBind.sizeDelta.x / 2, -ImageToBind.sizeDelta.y / 2);
 
-        Utilities.BindToCorners( GameObject.Find("Mask").GetComponent<RectTransform>(), corner0, corner3);
+        Utilities.BindToCorners(GameObject.Find("Mask").GetComponent<RectTransform>(), corner0, corner3);
         yield break;
 
 

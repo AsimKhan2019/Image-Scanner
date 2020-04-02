@@ -8,9 +8,9 @@ using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.UnityUtils;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ImgcodecsModule;
-
 using System.Runtime.InteropServices;
 using System;
+using System.Linq;
 
 public class CameraUtility : MonoBehaviour
 {
@@ -25,22 +25,37 @@ public class CameraUtility : MonoBehaviour
 
     ARCameraBackground m_ARCameraBackground;
 
+    RectTransform Background;
+    RectTransform Overlay;
+    UnityEngine.Rect myRect;
+
     RenderTexture renderTexture;
+    RenderTexture renderTexture2;
+
     RenderTexture rt;
 
     Texture2D m_LastCameraTexture;
+    Scalar lineColor;
 
     Vector2 startPos;
     RectTransform rect;
 
     Mat imgMat;
     Mat cannyMat;
+    Mat grey;
+    Mat thresholdMat;
+    Mat Heirarchy;
+
+    List<MatOfPoint> contours;
 
     Texture2D temp;
     Texture2D TargetTexture;
+    Texture2D CannyTexture;
 
     GCHandle arrayHandle;
 
+    Size mySize;
+    Point myPoint;
 
 #if (UNITY_IOS || UNITY_WEBGL) && !UNITY_EDITOR
         const string LIBNAME = "__Internal";
@@ -68,30 +83,54 @@ public class CameraUtility : MonoBehaviour
             h = w / ratio;
         }
         m_LastCameraTexture = new Texture2D((int)w, (int)h, TextureFormat.RGBA32, 1, true);
-
-        print("image size " + temp.width + ", " + temp.height);
-        print("texture size " + w + ", " + h);
 #else
         m_LastCameraTexture =  new Texture2D(Screen.width,Screen.height,TextureFormat.RGBA32,1,true);
 #endif
         var width = m_LastCameraTexture.width;
         var height = m_LastCameraTexture.height;
+        CannyTexture = new Texture2D(m_LastCameraTexture.width, m_LastCameraTexture.height, TextureFormat.RGBA32, 1, true);
 
         //m_LastCameraTexture.Resize(width, height);
         //Create a new RenderTexture for the RawImage on the canvas
         renderTexture = new RenderTexture(width, height, 0);
+        renderTexture2 = new RenderTexture(width, height, 0);
+
         rt = new RenderTexture(width, height, 0);
         imgMat = new Mat(height, width, CvType.CV_8UC4);
         cannyMat = new Mat(height, width, CvType.CV_8UC4);
+        thresholdMat = new Mat(imgMat.height(), imgMat.width(), CvType.CV_8UC4);
+
+        grey = new Mat();
+
+        myRect = new UnityEngine.Rect(0, 0, rt.width, rt.height);
 
         //Assign the new render texture to the RawImage
         GetComponent<RawImage>().texture = renderTexture;
         //Assign the new render texture to the Background RawImage
-        GameObject.Find("BackGroundCamera").GetComponent<RawImage>().texture = renderTexture;
+        Background = GameObject.Find("BackGroundCamera").GetComponent<RectTransform>();
+
+        try
+        {
+            Overlay = GameObject.Find("DebugTexture").GetComponent<RectTransform>();
+            Overlay.GetComponent<RawImage>().texture = renderTexture2;
+        }
+        catch
+        {
+
+        }
+
+        Background.GetComponent<RawImage>().texture = renderTexture;
+
         //Copy the texture
         TargetTexture = new Texture2D(width, height, TextureFormat.RGBA32, 1, true);
 
         contrastFilterActive.Value = true;
+
+        contours = new List<MatOfPoint>();
+        Heirarchy = new Mat();
+        lineColor = new Scalar(0, 255, 0);
+        mySize = new Size(5, 5);
+        myPoint = new Point(0, 0);
     }
 
     // Update is called once per frame
@@ -104,13 +143,13 @@ public class CameraUtility : MonoBehaviour
 //Grab the ar camera background and put it onto a temporary render texture
         Graphics.Blit(null, rt, m_ARCameraBackground.material);
         //outside the editor, write the image back to the texture in memory
-        m_LastCameraTexture.ReadPixels(new UnityEngine.Rect(0, 0, rt.width, rt.height), 0, 0, false);
+        m_LastCameraTexture.ReadPixels(myRect,0,0,false);
         m_LastCameraTexture.Apply();   
 #else
         //  Graphics.Blit(null, rt, m_ARCameraBackground.material);
         Graphics.Blit(temp, rt);
         //write the targetTexture to the texture stored in memory
-        m_LastCameraTexture.ReadPixels(new UnityEngine.Rect(0, 0, rt.width, rt.height), 0, 0, false);
+        m_LastCameraTexture.ReadPixels(myRect, 0, 0, false);
         m_LastCameraTexture.Apply();
 #endif
         RenderTexture.active = activeRenderTexture;
@@ -137,55 +176,88 @@ public class CameraUtility : MonoBehaviour
         if (contrastFilterActive.Value)
             imgMat.convertTo(imgMat, -1, contrastAlpha.Value, contrastBeta.Value); //adjust the contrast of the mat
 
-        //Canny causes duplicate edge lines, instead we will use canny to contour and find the corners of the image:
-        /*************** //CANNY EDGE DETECTION
-        // convert the image to grayscale and blur it slightly
-        Mat grey = new Mat();
-
-        Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(grey, cannyMat, new Size(7, 7), 0);
-
-        int MORPH = 9;
-        // dilate helps to remove potential holes between edge segments
-        var kernal = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(MORPH, MORPH));
-        Imgproc.dilate(cannyMat, cannyMat, kernal);
-
-        //apply the canny filter
-        Imgproc.Canny(imgMat, cannyMat, 0, 84, 3, true);
-
-        var linesMat = new Mat();
-
-        //invert black to white
-        Core.bitwise_not(cannyMat, cannyMat);
-        //END CANNY EDGE DETECTION ************************************/
-
-
         //Threshold the image if "Detect Edges" is on
         if (ShouldThreshold.Value)
         {
-            Mat grey = new Mat();
-            Mat update = new Mat(imgMat.height(), imgMat.width(), CvType.CV_8UC4);
-
             Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
 
-            print("adaptive threshold");
             Imgproc.adaptiveThreshold(grey, grey, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 21, 15);
-            Core.copyTo(grey, update, grey);
-
-            Utils.matToTexture2D(update, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
-
+            grey.copyTo(thresholdMat);
+            Utils.matToTexture2D(thresholdMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
         else
         {
             Utils.matToTexture2D(imgMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
+
+
+        //TODO:
+        //Canny to find contours
+        //after image processing we create two render textures, one for the zoom + cropped image
+        //and one that supports the regular scan
+        //*************** //CANNY EDGE DETECTION
+        // convert the image to grayscale and blur it slightly
+        if (ShouldThreshold.Value)
+            Imgproc.cvtColor(thresholdMat, grey, Imgproc.COLOR_BGR2GRAY);
+        else
+            Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
+
+        Imgproc.GaussianBlur(grey, cannyMat, mySize, 0);
+
+
+        // dilate helps to remove potential holes between edge segments
+        var kernal = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, mySize);
+        Imgproc.dilate(cannyMat, cannyMat, kernal);
+
+        //apply the canny filter
+        Imgproc.Canny(imgMat, cannyMat, 75, 200, 3, true);
+
+        //invert black to white
+        //Core.bitwise_not(cannyMat, cannyMat);
+
+        /*
+                //TODO: 
+                //find contours in the image:
+                Imgproc.findContours(cannyMat, contours, Heirarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+                List<MatOfPoint> sorted = contours.OrderByDescending(x => Imgproc.contourArea(x)).Take(5).ToList();
+
+                for (int i = 0; i < sorted.Count; i++)
+                {
+                    var c = sorted[i];
+                    MatOfPoint2f c2 = new MatOfPoint2f();
+                    c.convertTo(c2, CvType.CV_32F);
+
+                    // approximate the contour
+                    var peri = Imgproc.arcLength(c2, true);
+                    var approxCurve = new MatOfPoint2f();
+                    var screenContour = new MatOfPoint2f();
+
+                    Imgproc.approxPolyDP(c2, approxCurve, 0.02 * peri, true);
+
+                    //if our approximated contour has four points, then we
+                    //can assume that we have found our screen
+                    if (approxCurve.total() == 4)
+                    {
+                        Imgproc.drawContours(imgMat, sorted, i, lineColor, 2, Imgproc.LINE_AA, Heirarchy, 0, myPoint);
+                        screenContour = approxCurve;
+                        break;
+                    }
+                }
+                        Graphics.Blit(CannyTexture, renderTexture2);
+                //END CANNY EDGE DETECTION
+        */
+
+        Utils.matToTexture2D(cannyMat, CannyTexture, true, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         Graphics.Blit(TargetTexture, renderTexture);
     }
 
     private void LateUpdate()
     {
         rect.position = transform.parent.parent.position;
-        GameObject.Find("BackGroundCamera").GetComponent<RectTransform>().position = transform.parent.parent.position;
+        Background.position = transform.parent.parent.position;
+
+        if (Overlay != null)
+            Overlay.position = transform.parent.parent.position;
     }
 
     public void OnPhotoButtonPressed()
