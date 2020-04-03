@@ -17,12 +17,6 @@ public class ControlLookAndFeel : MonoBehaviour
         if (Application.isPlaying)
             return;
 
-        colorBlock = new ColorBlock();
-        colorBlock.normalColor = new Color(1,1,1,1);
-        colorBlock.selectedColor = lookAndFeel.UI_Color1;
-        colorBlock.highlightedColor = lookAndFeel.UI_Color1;
-        colorBlock.disabledColor = lookAndFeel.UI_Color1;
-
         //Assign background images
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("UI_Color0"))
         {
@@ -43,13 +37,30 @@ public class ControlLookAndFeel : MonoBehaviour
             b.GetComponent<Image>().color = lookAndFeel.UI_Color1;
         }
 
+        var list = GameObject.Find("ToolbarPanel").GetComponentsInChildren<FilterToggleButton>();
+        for (int i = 0; i < list.Length; i++)
+        {
+            list[0].GetComponent<Image>().color = lookAndFeel.Positive;
+            list[1].GetComponent<Image>().color = lookAndFeel.Negative;
+        }
 
         //Assign text
-        foreach(TextMeshProUGUI tmp in GameObject.FindObjectsOfType<TextMeshProUGUI>()){
+        foreach (TextMeshProUGUI tmp in GameObject.FindObjectsOfType<TextMeshProUGUI>())
+        {
             tmp.color = lookAndFeel.TextColor;
         }
 
         //Assign final color for button
         GameObject.Find("ScanButton").transform.GetChild(0).GetComponent<Image>().color = lookAndFeel.TextColor;
+
+        //Assign slider colors
+        var slider = GameObject.Find("ContrastSlider");
+        //slider background
+        slider.transform.GetChild(0).GetComponent<Image>().color = lookAndFeel.UI_Color0;
+        //slider fill
+        slider.transform.GetChild(1).GetChild(0).GetComponent<Image>().color = lookAndFeel.Positive;
+        //slider handle
+        slider.transform.GetChild(2).GetChild(0).GetComponent<Image>().color = lookAndFeel.UI_Color1;
+
     }
 }

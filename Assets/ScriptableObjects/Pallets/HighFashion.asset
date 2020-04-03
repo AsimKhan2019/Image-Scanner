@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 725a4374e551c4198b582dae45a210da, type: 3}
+  m_Name: HighFashion
+  m_EditorClassIdentifier: 
+  Negative:
+    serializedVersion: 2
+    rgba: 4286177271
+  UI_Color0:
+    serializedVersion: 2
+    rgba: 4286234356
+  UI_Color1:
+    serializedVersion: 2
+    rgba: 4287665895
+  UI_Color2:
+    serializedVersion: 2
+    rgba: 4288573884
+  Positive:
+    serializedVersion: 2
+    rgba: 4289358998
+  TextColor:
+    serializedVersion: 2
+    rgba: 4294967295
