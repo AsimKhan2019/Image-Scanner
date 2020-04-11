@@ -10,7 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5167b415318364e0e87a751ee1626b46, type: 3}
-  m_Name: CannyOn
+  m_Name: ThresholdOn
   m_EditorClassIdentifier: 
   InitialValue: 0
-  Value: 0
