@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 725a4374e551c4198b582dae45a210da, type: 3}
   m_Name: Pumkaboo
   m_EditorClassIdentifier: 
+  paletteName: Pumkaboo
   Negative:
     serializedVersion: 2
     rgba: 4280298581

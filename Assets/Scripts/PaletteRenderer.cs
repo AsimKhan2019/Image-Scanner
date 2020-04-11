@@ -13,10 +13,10 @@ public class PaletteRenderer : MonoBehaviour
 
     Transform horizontal;
 
-    private void Start()
+    private void Awake()
     {
         horizontal = transform.GetChild(0);
-        PaletteName = Palette.name;
+        PaletteName = Palette.paletteName;
 
         GetComponentInChildren<TextMeshProUGUI>().text = name;
 
@@ -31,7 +31,7 @@ public class PaletteRenderer : MonoBehaviour
     private void Update()
     {
         horizontal = transform.GetChild(0);
-        PaletteName = Palette.name;
+        PaletteName = Palette.paletteName;
         if (!Application.isPlaying)
         {
             GetComponentInChildren<TextMeshProUGUI>().text = PaletteName;

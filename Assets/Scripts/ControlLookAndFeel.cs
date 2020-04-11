@@ -80,11 +80,11 @@ public class ControlLookAndFeel : MonoBehaviour
             var ppg = GameObject.Find("PaletteGrid");
             foreach (PaletteRenderer pr in ppg.GetComponentsInChildren<PaletteRenderer>())
             {
-                print(ppp + " fdf " + pr.GetName());
+                print("1" + ppp + " fdf " + pr.GetName());
 
                 if (pr.GetName() == ppp)
                 {
-                    print(pr.GetName());
+                    print("2" + pr.GetName());
                     lookAndFeel = pr.GetLookAndFeel();
                     AssignPaletteColors();
                 }
