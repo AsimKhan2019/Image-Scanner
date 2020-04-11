@@ -17,6 +17,12 @@ public class ControlLookAndFeel : MonoBehaviour
         if (Application.isPlaying)
             return;
 
+        AssignPaletteColors();
+
+    }
+
+    public void AssignPaletteColors()
+    {
         //Assign background images
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("UI_Color0"))
         {
@@ -61,6 +67,28 @@ public class ControlLookAndFeel : MonoBehaviour
         slider.transform.GetChild(1).GetChild(0).GetComponent<Image>().color = lookAndFeel.Positive;
         //slider handle
         slider.transform.GetChild(2).GetChild(0).GetComponent<Image>().color = lookAndFeel.UI_Color1;
+    }
 
+    public void LoadFromPlayerPrefs()
+    {
+        //get the player pref
+        if (PlayerPrefs.HasKey("LookAndFeel"))
+        {
+            var ppp = PlayerPrefs.GetString("LookAndFeel");
+
+            //get the buttons from the settings menu;
+            var ppg = GameObject.Find("PaletteGrid");
+            foreach (PaletteRenderer pr in ppg.GetComponentsInChildren<PaletteRenderer>())
+            {
+                print(ppp + " fdf " + pr.GetName());
+
+                if (pr.GetName() == ppp)
+                {
+                    print(pr.GetName());
+                    lookAndFeel = pr.GetLookAndFeel();
+                    AssignPaletteColors();
+                }
+            }
+        }
     }
 }

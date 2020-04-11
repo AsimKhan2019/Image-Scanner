@@ -17,6 +17,10 @@ public class InitializeLayout : MonoBehaviour
 
     IEnumerator Init()
     {
+        GameObject.Find("Canvas").GetComponent<ChangeView>().ChangeViewViaIndex(0);
+        GameObject.Find("AssignLookAndFeel").GetComponent<ControlLookAndFeel>().LoadFromPlayerPrefs();
+
+
         //enable the image panel 
         foreach (Image i in GameObject.Find("Loading Panel").GetComponentsInChildren<Image>())
             i.enabled = true;
