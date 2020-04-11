@@ -36,6 +36,13 @@ namespace Keenan_UI
             return imageTransform.sizeDelta;
         }
 
+        public static void SizeToBackGroundCamera(this Image image, float padding = 0)
+        {
+            var parent = GameObject.Find("BackGroundCamera").GetComponentInParent<RectTransform>();
+            image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, parent.sizeDelta.x);
+            image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, parent.sizeDelta.y);
+        }
+
         public static Texture2D GetTextureWithMask(Texture2D img, Texture2D mask)
         {
             if (img == null)
@@ -70,6 +77,6 @@ namespace Keenan_UI
 
             rect.offsetMin = new Vector2(Corner1.anchoredPosition.x + offset.x, Corner2.anchoredPosition.y + offset.y);
             rect.offsetMax = new Vector2(Corner2.anchoredPosition.x + offset.x, Corner1.anchoredPosition.y + offset.y);
-        }   
+        }
     }
 }

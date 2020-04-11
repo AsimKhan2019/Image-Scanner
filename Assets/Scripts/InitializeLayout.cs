@@ -7,11 +7,11 @@ using UnityEngine.iOS;
 public class InitializeLayout : MonoBehaviour
 {
 
-    GameObject CameraPermissionButton;
+    Canvas CameraPermissionCanvas;
     // Start is called before the first frame update
     void Start()
     {
-        CameraPermissionButton = GameObject.Find("QueryPermissionButton");
+        CameraPermissionCanvas = GameObject.Find("QueryPermissionButton").GetComponentInParent<Canvas>();
         StartCoroutine("Init");
     }
 
@@ -60,13 +60,20 @@ public class InitializeLayout : MonoBehaviour
 
         //Turn off the splash screen after a time.
         yield return new WaitForSeconds(1.0f);
-        GameObject.Find("Loading Panel").SetActive(false);
 
         StartCoroutine("CheckForCamera");
 
+        yield return new WaitForSeconds(.5f);
+        var editorMask = GameObject.Find("EditorMask").GetComponent<Image>();
+        Keenan_UI.Utilities.SizeToBackGroundCamera(editorMask);
+        var overlay = GameObject.Find("GreyOverlay").GetComponent<Image>();
+        Keenan_UI.Utilities.SizeToBackGroundCamera(overlay);
+
+        GameObject.Find("Loading Panel").SetActive(false);
         yield break;
     }
 
+    //This coroutine runs continously in case we ever lose or gain camera persmission
     IEnumerator CheckForCamera()
     {
         while (Application.HasUserAuthorization(UserAuthorization.WebCam))
@@ -74,13 +81,11 @@ public class InitializeLayout : MonoBehaviour
             //check if we have the camera permission
             if (Application.HasUserAuthorization(UserAuthorization.WebCam))
             {
-                Debug.Log("webcam found");
-                CameraPermissionButton.SetActive(false);
+                CameraPermissionCanvas.enabled = false;
             }
             else
             {
-                Debug.Log("webcam not found");
-                CameraPermissionButton.SetActive(true);
+                CameraPermissionCanvas.enabled = true;
             }
             yield return null;
         }

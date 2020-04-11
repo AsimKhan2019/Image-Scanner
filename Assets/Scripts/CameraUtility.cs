@@ -23,6 +23,9 @@ public class CameraUtility : MonoBehaviour
     [SerializeField]
     BoolReference ShouldThreshold = null;
 
+    [SerializeField]
+    GameObject ConfirmationDialogue;
+
     ARCameraBackground m_ARCameraBackground;
 
     RectTransform Background;
@@ -286,6 +289,26 @@ public class CameraUtility : MonoBehaviour
         //grab the camera image
         Camera.main.GetComponent<ReadPixels>().grab = true;
 
+        yield return new WaitForSeconds(.2f);
+#if UNITY_IOS
+        //check if we have photogallery permission
+        if (NativeGallery.CheckPermission() == NativeGallery.Permission.Granted)
+        {
+            Debug.Log("Saving image");
+            ConfirmationDialogue.GetComponent<PictureSavedResponse>().SetMessage("The scan has been saved. Check your photo gallery");
+            ConfirmationDialogue.GetComponent<PictureSavedResponse>().Show();
+            yield return new WaitForSeconds(3.0f);
+            ConfirmationDialogue.GetComponent<PictureSavedResponse>().Hide();
+        }
+        else
+        {
+            Debug.Log("Could not save image");
+            ConfirmationDialogue.GetComponent<PictureSavedResponse>().SetMessage("Unable to save image: Please enable photo gallery permission");
+            ConfirmationDialogue.GetComponent<PictureSavedResponse>().Show();
+            yield return new WaitForSeconds(4.0f);
+            ConfirmationDialogue.GetComponent<PictureSavedResponse>().Hide();
+        }
+#endif
         yield break;
     }
 
