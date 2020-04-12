@@ -44,10 +44,20 @@ public class CameraUtility : MonoBehaviour
     RectTransform rect;
 
     Mat imgMat;
-    Mat cannyMat;
     Mat grey;
     Mat thresholdMat;
+    Mat imageMaskMat;
+    Mat invertedMask;
+    Mat finalMat;
+    Mat coloredPieceMat;
+    Mat greyPieceMat;
+
+    //unused Mats
+    Mat cannyMat;
     Mat Heirarchy;
+    Mat tmp1;
+    Mat tmp2;
+
 
     List<MatOfPoint> contours;
 
@@ -101,7 +111,15 @@ public class CameraUtility : MonoBehaviour
         rt = new RenderTexture(width, height, 0);
         imgMat = new Mat(height, width, CvType.CV_8UC4);
         cannyMat = new Mat(height, width, CvType.CV_8UC4);
-        thresholdMat = new Mat(imgMat.height(), imgMat.width(), CvType.CV_8UC4);
+        thresholdMat = new Mat(height, width, CvType.CV_8UC4);
+        imageMaskMat = new Mat(height, width, CvType.CV_8UC4);
+        invertedMask = new Mat(height, width, CvType.CV_8UC4);
+        finalMat = new Mat(height, width, CvType.CV_8UC4);
+        coloredPieceMat = new Mat(height, width, CvType.CV_8UC4);
+        greyPieceMat = new Mat(height, width, CvType.CV_8UC4);
+        tmp1 = new Mat(height, width, CvType.CV_8UC4);
+        tmp2 = new Mat(height, width, CvType.CV_8UC4);
+
 
         grey = new Mat();
 
@@ -182,11 +200,24 @@ public class CameraUtility : MonoBehaviour
         //Threshold the image if "Detect Edges" is on
         if (ShouldThreshold.Value)
         {
+            //Convert image to grey
             Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
 
-            Imgproc.adaptiveThreshold(grey, grey, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 21, 15);
-            grey.copyTo(thresholdMat);
-            Utils.matToTexture2D(thresholdMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+            //Threshold to get outlines
+            Imgproc.adaptiveThreshold(grey, thresholdMat, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 21, 15);
+
+            //using bitwise_not we turn this thresholded Mat into a Mask
+            Core.bitwise_not(thresholdMat, imageMaskMat);
+            //Get the inverted mask
+            Core.bitwise_not(imageMaskMat, invertedMask);
+
+            //Then we mask the original image using bitwise and the mask
+            Core.bitwise_or(imgMat, imgMat, tmp1, invertedMask);
+            tmp1.copyTo(coloredPieceMat);
+
+    
+
+            Utils.matToTexture2D(coloredPieceMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
         else
         {
