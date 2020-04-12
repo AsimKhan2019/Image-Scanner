@@ -57,7 +57,7 @@ public class CameraUtility : MonoBehaviour
     Mat Heirarchy;
     Mat tmp1;
     Mat tmp2;
-
+    Mat white;
 
     List<MatOfPoint> contours;
 
@@ -119,7 +119,7 @@ public class CameraUtility : MonoBehaviour
         greyPieceMat = new Mat(height, width, CvType.CV_8UC4);
         tmp1 = new Mat(height, width, CvType.CV_8UC4);
         tmp2 = new Mat(height, width, CvType.CV_8UC4);
-
+        white = new Mat(height, width, CvType.CV_8UC4, new Scalar(255, 255, 255, 255));
 
         grey = new Mat();
 
@@ -208,80 +208,29 @@ public class CameraUtility : MonoBehaviour
 
             //using bitwise_not we turn this thresholded Mat into a Mask
             Core.bitwise_not(thresholdMat, imageMaskMat);
+
             //Get the inverted mask
             Core.bitwise_not(imageMaskMat, invertedMask);
 
             //Then we mask the original image using bitwise and the mask
-            Core.bitwise_or(imgMat, imgMat, tmp1, invertedMask);
+            Core.bitwise_or(imgMat, imgMat, tmp1, imageMaskMat);
             tmp1.copyTo(coloredPieceMat);
 
-    
+            //Then use the inverted mask and the thersholded image
+            Core.bitwise_or(white, white, tmp1, invertedMask);
+            tmp1.copyTo(greyPieceMat);
 
-            Utils.matToTexture2D(coloredPieceMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
+            //add the pieces
+            Core.bitwise_and(coloredPieceMat, greyPieceMat, tmp2);
+            tmp2.copyTo(finalMat);
+
+            Utils.matToTexture2D(finalMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
         else
         {
             Utils.matToTexture2D(imgMat, TargetTexture, false, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         }
 
-
-        //TODO:
-        //Canny to find contours
-        //after image processing we create two render textures, one for the zoom + cropped image
-        //and one that supports the regular scan
-        //*************** //CANNY EDGE DETECTION
-        // convert the image to grayscale and blur it slightly
-        if (ShouldThreshold.Value)
-            Imgproc.cvtColor(thresholdMat, grey, Imgproc.COLOR_BGR2GRAY);
-        else
-            Imgproc.cvtColor(imgMat, grey, Imgproc.COLOR_BGR2GRAY);
-
-        Imgproc.GaussianBlur(grey, cannyMat, mySize, 0);
-
-
-        // dilate helps to remove potential holes between edge segments
-        var kernal = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, mySize);
-        Imgproc.dilate(cannyMat, cannyMat, kernal);
-
-        //apply the canny filter
-        Imgproc.Canny(imgMat, cannyMat, 75, 200, 3, true);
-
-        //invert black to white
-        //Core.bitwise_not(cannyMat, cannyMat);
-
-        /*
-                //TODO: 
-                //find contours in the image:
-                Imgproc.findContours(cannyMat, contours, Heirarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-                List<MatOfPoint> sorted = contours.OrderByDescending(x => Imgproc.contourArea(x)).Take(5).ToList();
-
-                for (int i = 0; i < sorted.Count; i++)
-                {
-                    var c = sorted[i];
-                    MatOfPoint2f c2 = new MatOfPoint2f();
-                    c.convertTo(c2, CvType.CV_32F);
-
-                    // approximate the contour
-                    var peri = Imgproc.arcLength(c2, true);
-                    var approxCurve = new MatOfPoint2f();
-                    var screenContour = new MatOfPoint2f();
-
-                    Imgproc.approxPolyDP(c2, approxCurve, 0.02 * peri, true);
-
-                    //if our approximated contour has four points, then we
-                    //can assume that we have found our screen
-                    if (approxCurve.total() == 4)
-                    {
-                        Imgproc.drawContours(imgMat, sorted, i, lineColor, 2, Imgproc.LINE_AA, Heirarchy, 0, myPoint);
-                        screenContour = approxCurve;
-                        break;
-                    }
-                }
-                        Graphics.Blit(CannyTexture, renderTexture2);
-                //END CANNY EDGE DETECTION
-        */
-
-        Utils.matToTexture2D(cannyMat, CannyTexture, true, -1, true); //Copy the mat into targetTex to avoid overwriting m_LastCameraTexture
         Graphics.Blit(TargetTexture, renderTexture);
     }
 
